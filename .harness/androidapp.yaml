@@ -53,7 +53,7 @@ pipeline:
                   identifier: Build_APK
                   spec:
                     connectorRef: account.harnessImage
-                    image: ./gradlew clean build  ls -R
+                    image: alvrme/alpine-android:android-33-jdk11
                     shell: Sh
                     command: |-
                       ./gradlew clean build
