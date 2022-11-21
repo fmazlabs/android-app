@@ -36,7 +36,6 @@ pipeline:
                     shell: Sh
                     command: |-
                       ./gradlew clean test
-
                       ls -R
                     reports:
                       type: JUnit
