@@ -22,6 +22,7 @@ pipeline:
             spec:
               connectorRef: account.Harness_Kubernetes_Cluster
               namespace: fm-test
+              automountServiceAccountToken: true
               nodeSelector: {}
               os: Linux
           execution:
