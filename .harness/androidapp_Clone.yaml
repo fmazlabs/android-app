@@ -1,69 +1,71 @@
----
 pipeline:
-  projectIdentifier: "Shell"
-  orgIdentifier: "default"
+  projectIdentifier: Shell
+  orgIdentifier: default
   tags: {}
   properties:
     ci:
       codebase:
-        connectorRef: "account.fmazlabsgit"
-        repoName: "android-app"
-        build: "<+input>"
+        connectorRef: account.fmazlabsgit
+        repoName: android-app
+        build: <+input>
   stages:
-  - stage:
-      name: "Build and Test Android App"
-      identifier: "Build_and_Test_Android_App"
-      type: "CI"
-      spec:
-        cloneCodebase: true
-        infrastructure:
-          type: "KubernetesDirect"
-          spec:
-            connectorRef: "account.Harness_Kubernetes_Cluster"
-            namespace: "fm-test"
-            automountServiceAccountToken: true
-            nodeSelector: {}
-            os: "Linux"
-        execution:
-          steps:
-          - step:
-              type: "Run"
-              name: "Run Tests"
-              identifier: "Run_Tests"
-              spec:
-                connectorRef: "account.harnessImage"
-                image: "alvrme/alpine-android:android-33-jdk11"
-                shell: "Sh"
-                command: "./gradlew clean test\nls -R"
-                reports:
-                  type: "JUnit"
+    - stage:
+        name: Build and Test Android App
+        identifier: Build_and_Test_Android_App
+        type: CI
+        spec:
+          cloneCodebase: true
+          execution:
+            steps:
+              - step:
+                  type: Run
+                  name: Run Tests
+                  identifier: Run_Tests
                   spec:
-                    paths:
-                    - "build/test-results/*.xml"
-                resources:
-                  limits:
-                    memory: "1G"
-                    cpu: "1"
-          - step:
-              type: "Run"
-              name: "Build APK"
-              identifier: "Build_APK"
-              spec:
-                connectorRef: "account.harnessImage"
-                image: "alvrme/alpine-android:android-33-jdk11"
-                shell: "Sh"
-                command: "./gradlew clean build\n\nls -R"
-                resources:
-                  limits:
-                    memory: "3G"
-                    cpu: "1"
-          - step:
-              type: "ArtifactoryUpload"
-              name: "Publish to JFROG"
-              identifier: "Publish_to_JFROG"
-              spec:
-                connectorRef: "account.jfrog"
-                target: "defaultdockerfm-docker/"
-                sourcePath: "app/build/outputs/apk/release/app-release-unsigned.apk"
-  identifier: "androidapp_Clone"
-  name: "androidapp - Clone"
+                    connectorRef: account.harnessImage
+                    image: alvrme/alpine-android:android-33-jdk11
+                    shell: Sh
+                    command: |-
+                      ./gradlew clean test
+                      ls -R
+                    reports:
+                      type: JUnit
+                      spec:
+                        paths:
+                          - build/test-results/*.xml
+                    resources:
+                      limits:
+                        memory: 1G
+                        cpu: "1"
+              - step:
+                  type: Run
+                  name: Build APK
+                  identifier: Build_APK
+                  spec:
+                    connectorRef: account.harnessImage
+                    image: alvrme/alpine-android:android-33-jdk11
+                    shell: Sh
+                    command: |-
+                      ./gradlew clean build
+
+                      ls -R
+                    resources:
+                      limits:
+                        memory: 3G
+                        cpu: "1"
+              - step:
+                  type: ArtifactoryUpload
+                  name: Publish to JFROG
+                  identifier: Publish_to_JFROG
+                  spec:
+                    connectorRef: account.jfrog
+                    target: defaultdockerfm-docker/
+                    sourcePath: app/build/outputs/apk/release/app-release-unsigned.apk
+          platform:
+            os: Linux
+            arch: Amd64
+          runtime:
+            type: Cloud
+            spec: {}
+  identifier: androidapp_Clone
+  name: androidapp - Clone
